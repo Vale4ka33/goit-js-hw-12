@@ -22,6 +22,7 @@ async function submitForm(event) {
     page = 1;
 
     try {
+         loader.classList.add('loader--visible');
         const response = await searchImage(searchInput, page);
         
         if (response.hits.length === 0) {
@@ -31,6 +32,8 @@ async function submitForm(event) {
                 backgroundColor: '#EF4040',
                 messageColor: '#fff',
             });
+            imgList.innerHTML = '';
+            loadBtn.classList.add('is-hidden');
         } else {
             imgList.innerHTML = createMarkup(response.hits);
             if (response.total > 15) {
@@ -51,29 +54,31 @@ async function loadClick() {
     page += 1;
     
     try {
+        loader.classList.add('loader--visible');
         const response = await searchImage(searchInput, page);
-
+        
         imgList.insertAdjacentHTML('beforeend', createMarkup(response.hits));
 
-         // Функція для скролу
-      const { height: cardHeight } = document
-      .querySelector('.imgList')
-      .firstElementChild.getBoundingClientRect();
+        // Функція для скролу
+        const { height: cardHeight } = document
+            .querySelector('.img-list')
+            .firstElementChild.getBoundingClientRect();
 
-      window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-      });
+        window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth',
+        });
         
         const lastPage = Math.ceil(response.total / 15);
         if (lastPage === page) {
             loadBtn.classList.add('is-hidden');
-            return iziToast.info({
-          message:
-            "We're sorry, but you've reached the end of search results",
-        });
+            iziToast.info({
+                message: "We're sorry, but you've reached the end of search results",
+            });
         }
     } catch (error) {
         console.log(error.message);
+    } finally {
+        loader.classList.remove('loader--visible');
     }
 }
