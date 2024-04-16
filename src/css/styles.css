@@ -39,7 +39,8 @@ body {
   border: 1px solid #000;
 }
 
-.btn {
+.btn,
+.load-more {
   font-family: inherit;
   font-size: 16px;
   line-height: 1.5;
@@ -50,13 +51,21 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-
-  width: 90px;
-  height: 40px;
   padding: 8px 16px;
 }
 
-.btn:hover {
+.image-container {
+  margin-bottom: 32px;
+}
+
+.load-more {
+  text-align: center;
+  display: block;
+  margin: 32px auto;
+}
+
+.btn:hover,
+.load-more:hover {
   background: #6C8CFF;
 }
 
@@ -172,4 +181,28 @@ body {
 
 .loader--visible {
   display: block;
+}
+
+.backdrop {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+
+}
+
+.is-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+
+  white-space: nowrap;
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
 }

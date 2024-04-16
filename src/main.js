@@ -2,44 +2,78 @@ import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
+
 import { searchImage } from './js/pixabay-api';
 import { createMarkup, initLightbox } from './js/render-funcions';
 
 const form = document.querySelector('.form');
 const imgList = document.querySelector('.img-list');
 const loader = document.querySelector('.loader');
+const loadBtn = document.querySelector('.load-more');
 
 form.addEventListener('submit', submitForm);
+loadBtn.addEventListener('click', loadClick);
+let page = 1;
+let searchInput = null;
 
-function submitForm(event) {
+async function submitForm(event) {
     event.preventDefault();
+    searchInput = event.currentTarget.elements.search.value.trim();
+    page = 1;
 
-    const searchInput = event.currentTarget.elements.search.value.trim();
-    if (searchInput === '') {
-        return;
-    }
+    try {
+        const response = await searchImage(searchInput, page);
+        
+        if (response.hits.length === 0) {
+            iziToast.error({
+                message: 'Sorry, there are no images matching your search query. Please try again!',
+                position: 'topRight',
+                backgroundColor: '#EF4040',
+                messageColor: '#fff',
+            });
+        } else {
+            imgList.innerHTML = createMarkup(response.hits);
+            if (response.total > 15) {
+                loadBtn.classList.remove('is-hidden');
+            }
+            initLightbox();
+        }
 
-    imgList.innerHTML = '';
-     loader.classList.add('loader--visible');
-
-
-    searchImage(searchInput)
-    .then(data => {
-        console.log(data);
-        imgList.innerHTML = createMarkup(data.hits);
-        initLightbox();
-        form.reset();
-    })
-    .catch(error => {
-        iziToast.error({
-                    message: 'Sorry, there are no images matching your search query. Please try again!',
-                    position: 'topRight',
-                    backgroundColor: '#EF4040',
-                    messageColor: '#fff',
-                    
-        });
-    })
-    .finally(() => {
+    } catch (error) {
+        console.log(error.message);
+    } finally {
         loader.classList.remove('loader--visible');
-    });
+        event.target.reset();
+    }
+}
+
+async function loadClick() {
+    page += 1;
+    
+    try {
+        const response = await searchImage(searchInput, page);
+
+        imgList.insertAdjacentHTML('beforeend', createMarkup(response.hits));
+
+         // Функція для скролу
+      const { height: cardHeight } = document
+      .querySelector('.imgList')
+      .firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+      });
+        
+        const lastPage = Math.ceil(response.total / 15);
+        if (lastPage === page) {
+            loadBtn.classList.add('is-hidden');
+            return iziToast.info({
+          message:
+            "We're sorry, but you've reached the end of search results",
+        });
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
 }
