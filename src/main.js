@@ -4,17 +4,25 @@ import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
 import { searchImage } from './js/pixabay-api';
-import { createMarkup, initLightbox } from './js/render-funcions';
+import { createMarkup} from './js/render-funcions';
 
 const form = document.querySelector('.form');
 const imgList = document.querySelector('.img-list');
 const loader = document.querySelector('.loader');
 const loadBtn = document.querySelector('.load-more');
+const lightbox = new SimpleLightbox('.img-list a', {
+        captionsData: 'alt',
+        captionPosition: 'bottom',
+        captionDelay: 250,
+        animationSpeed: 250,
+        animationSlide: true
+    });
 
 form.addEventListener('submit', submitForm);
 loadBtn.addEventListener('click', loadClick);
 let page = 1;
 let searchInput = null;
+
 
 async function submitForm(event) {
     event.preventDefault();
@@ -36,10 +44,12 @@ async function submitForm(event) {
             loadBtn.classList.add('is-hidden');
         } else {
             imgList.innerHTML = createMarkup(response.hits);
-            if (response.total > 15) {
+            if (response.totalHits > 15) {
                 loadBtn.classList.remove('is-hidden');
+            } else {
+                loadBtn.classList.add('is-hidden');
             }
-            initLightbox();
+            lightbox.refresh();
         }
 
     } catch (error) {
@@ -58,6 +68,7 @@ async function loadClick() {
         const response = await searchImage(searchInput, page);
         
         imgList.insertAdjacentHTML('beforeend', createMarkup(response.hits));
+        lightbox.refresh();
 
         // Функція для скролу
         const { height: cardHeight } = document
@@ -69,7 +80,7 @@ async function loadClick() {
             behavior: 'smooth',
         });
         
-        const lastPage = Math.ceil(response.total / 15);
+        const lastPage = Math.ceil(response.totalHits / 15);
         if (lastPage === page) {
             loadBtn.classList.add('is-hidden');
             iziToast.info({

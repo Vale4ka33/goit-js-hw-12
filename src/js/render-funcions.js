@@ -1,8 +1,3 @@
-import SimpleLightbox from "simplelightbox";
-import iziToast from "izitoast";
-import "simplelightbox/dist/simple-lightbox.min.css";
-import "izitoast/dist/css/iziToast.min.css";
-
 export function createMarkup(arr) {
     return arr.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => `
         <li class="img-item">
@@ -19,13 +14,3 @@ export function createMarkup(arr) {
     ).join("");
 }
 
-export function initLightbox() {
-    const lightbox = new SimpleLightbox('.img-list a', {
-        captionsData: 'alt',
-        captionPosition: 'bottom',
-        captionDelay: 250,
-        animationSpeed: 250,
-        animationSlide: true
-    });
-    lightbox.refresh();
-}
